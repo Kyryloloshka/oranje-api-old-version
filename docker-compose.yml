@@ -10,5 +10,15 @@ services:
       POSTGRES_DB: nest
     networks:
       - firstnest
+  test-db:
+    image: postgres:latest
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 135790135790
+      POSTGRES_DB: test
+    networks:
+      - firstnest
 networks:
   firstnest:
