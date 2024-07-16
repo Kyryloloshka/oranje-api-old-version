@@ -331,8 +331,21 @@ describe('App e2e', () => {
   });
 
   describe('Category', () => {
+    const createCategoryDto = {
+      name: 'category1',
+    };
     describe('Create category', () => {
-      it.todo('should create a category');
+      it('should create a category', () => {
+        return pactum
+          .spec()
+          .post('/categories')
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .expectStatus(201)
+          .withBody(createCategoryDto)
+          .stores('categoryId', 'id');
+      });
       it.todo('should throw 400 if invalid data is provided');
       it.todo(
         'should throw 403 if user is not an admin or does not have the required permissions',
