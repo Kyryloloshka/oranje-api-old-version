@@ -22,5 +22,54 @@ model User {
   hash      String
   firstName String?
   lastName  String?
+  reviews   Review[]
   @@map("users")
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  price       Float
+  stock       Int      @default(0)
+  categoryId  Int?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  brand       String?
+  weight      Float?
+  dimensions  String?
+  color       String?
+  material    String?
+  rating      Float    @default(0.0)
+  numReviews  Int      @default(0)
+  reviews     Review[]
+  sku         String?
+  barcode     String?
+  tags        String[]
+  thumbnail   String
+  images      String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("products")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  @@map("categories")
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  rating    Float
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("reviews")
 }
