@@ -1,4 +1,10 @@
-import { IsOptional, IsNumber, IsString, IsArray } from 'class-validator';
+import {
+  IsOptional,
+  IsNumber,
+  IsString,
+  IsArray,
+  IsInt,
+} from 'class-validator';
 
 export class EditProductDto {
   @IsOptional()
@@ -18,7 +24,7 @@ export class EditProductDto {
   stock?: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   categoryId?: number;
 
   @IsOptional()

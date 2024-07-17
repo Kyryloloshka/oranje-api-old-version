@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as pactum from 'pactum';
 import { AuthDto } from 'src/auth/dto';
 import { EditUserDto } from 'src/user/dto';
+import { CreateCategoryDto } from 'src/category/dto';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -32,11 +33,11 @@ describe('App e2e', () => {
   describe('Auth', () => {
     const dto: AuthDto = {
       email: 'test@gmail.com',
-      password: '135790135790',
+      password: '1234567890',
     };
     const invalidEmailDto: AuthDto = {
       email: 'test',
-      password: '135790135790',
+      password: '1234567890',
     };
     const invalidPasswordDto: AuthDto = {
       email: 'test@gmail.com',
@@ -102,7 +103,7 @@ describe('App e2e', () => {
           .post('/auth/signin')
           .withBody({
             email: 'test2@gmail.com',
-            password: '135790135790',
+            password: '1234567890',
           })
           .expectStatus(403);
       });
@@ -147,17 +148,17 @@ describe('App e2e', () => {
       });
     });
   });
+  const createProductDto = {
+    title: 'product',
+    price: 123,
+    thumbnail: 'image/url',
+  };
   describe('Product', () => {
     describe('Get empty product list', () => {
       it('should return an empty array', () => {
         return pactum.spec().get('/products').expectStatus(200).expectBody([]);
       });
     });
-    const createProductDto = {
-      title: 'product',
-      price: 123,
-      thumbnail: 'image/url',
-    };
     describe('Create product', () => {
       it('should create a product', () => {
         return pactum
@@ -310,6 +311,17 @@ describe('App e2e', () => {
       it('should get empty product list', () => {
         return pactum.spec().get('/products').expectStatus(200).expectBody([]);
       });
+      it('should create one more product', () => {
+        return pactum
+          .spec()
+          .post('/products')
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .withBody(createProductDto)
+          .expectStatus(201)
+          .stores('createdProductId', 'id');
+      });
     });
 
     describe('Search products', () => {
@@ -331,7 +343,16 @@ describe('App e2e', () => {
   });
 
   describe('Category', () => {
-    const createCategoryDto = {
+    describe('Get empty categories list', () => {
+      it('should return an empty array', () => {
+        return pactum
+          .spec()
+          .get('/categories')
+          .expectStatus(200)
+          .expectBody([]);
+      });
+    });
+    const createCategoryDto: CreateCategoryDto = {
       name: 'category1',
     };
     describe('Create category', () => {
@@ -342,43 +363,197 @@ describe('App e2e', () => {
           .withHeaders({
             Authorization: `Bearer $S{userAt}`,
           })
-          .expectStatus(201)
           .withBody(createCategoryDto)
+          .expectStatus(201)
           .stores('categoryId', 'id');
       });
-      it.todo('should throw 400 if invalid data is provided');
+      it('should throw 400 if invalid data is provided', () => {
+        return pactum
+          .spec()
+          .post('/categories')
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .withBody({
+            name: '',
+            baka: 3452,
+          })
+          .expectStatus(400);
+      });
       it.todo(
         'should throw 403 if user is not an admin or does not have the required permissions',
       );
-      it.todo(
-        'should throw 403 if the user is not authenticated or the token is invalid',
-      );
+      it('should throw 401 if the user is not authenticated or the token is invalid', () => {
+        return pactum.spec().post('/categories').expectStatus(401);
+      });
     });
 
     describe('Edit category', () => {
-      it.todo('should edit a category');
-      it.todo('should throw 400 if invalid data is provided');
+      it('should edit a category', () => {
+        return pactum
+          .spec()
+          .patch('/categories/{id}')
+          .withPathParams('id', '$S{categoryId}')
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .withBody({
+            name: 'edited category',
+          })
+          .expectStatus(200)
+          .expectBodyContains('edited category');
+      });
+      it('should throw 400 if invalid data is provided', () => {
+        return pactum
+          .spec()
+          .patch('/categories/{id}')
+          .withPathParams('id', '$S{categoryId}')
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .withBody({
+            name: '',
+            baka: 3452,
+          })
+          .expectStatus(400);
+      });
       it.todo(
         'should throw 403 if user is not an admin or does not have the required permissions',
       );
-      it.todo(
-        'should throw 403 if the user is not authenticated or the token is invalid',
-      );
+      it('should throw 401 if the user is not authenticated or the token is invalid', () => {
+        return pactum
+          .spec()
+          .patch('/categories/{id}')
+          .withPathParams('id', '$S{categoryId}')
+          .withBody({
+            name: 'edited category',
+          })
+          .expectStatus(401);
+      });
     });
-
+    describe('Get category by id', () => {
+      it('should get a category by id', () => {
+        return pactum
+          .spec()
+          .get('/categories/{id}')
+          .withPathParams('id', '$S{categoryId}')
+          .expectStatus(200)
+          .expectBodyContains('edited category');
+      });
+      it('should throw 404 if category is not found', () => {
+        return pactum
+          .spec()
+          .get('/categories/{id}')
+          .withPathParams('id', 134543)
+          .expectStatus(404);
+      });
+    });
     describe('Delete category', () => {
-      it.todo('should delete a category');
       it.todo(
         'should throw 403 if user is not an admin or does not have the required permissions',
       );
-      it.todo(
-        'should throw 403 if the user is not authenticated or the token is invalid',
-      );
+      it('should throw 401 if the user is not authenticated or the token is invalid', () => {
+        return pactum
+          .spec()
+          .delete('/categories/{id}')
+          .withPathParams('id', '$S{categoryId}')
+          .expectStatus(401);
+      });
+      it('should delete a category', () => {
+        return pactum
+          .spec()
+          .delete('/categories/{id}')
+          .withPathParams('id', '$S{categoryId}')
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .expectStatus(204);
+      });
     });
-
-    describe('Get category', () => {
-      it.todo('should get a category');
-      it.todo('should throw 404 if category is not found');
+    describe('Get category by id', () => {
+      it('should throw 404 if category is not found', () => {
+        return pactum
+          .spec()
+          .delete('/categories/{id}')
+          .withPathParams('id', '$S{categoryId}')
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .expectStatus(404);
+      });
+    });
+    describe('Create category', () => {
+      it('should create a category', () => {
+        return pactum
+          .spec()
+          .post('/categories')
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .withBody(createCategoryDto)
+          .expectStatus(201)
+          .stores('createdCategoryId', 'id');
+      });
+    });
+    describe('Add product to category', () => {
+      it('should add a product to a category', () => {
+        return pactum
+          .spec()
+          .patch('/products/{productId}')
+          .withPathParams('productId', '$S{createdProductId}')
+          .withBody({
+            categoryId: parseInt('$S{createdCategoryId}', 10),
+          })
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .expectStatus(200);
+      });
+      it('should create product in category', () => {
+        return pactum
+          .spec()
+          .post('/products/')
+          .withBody({
+            ...createProductDto,
+            categoryId: parseInt('$S{createdCategoryId}', 10),
+          })
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .expectStatus(201);
+      });
+      it('should throw 400 if category ID is invalid', () => {
+        return pactum
+          .spec()
+          .patch('/products/{productId}')
+          .withPathParams('productId', '$S{createdProductId}')
+          .withBody({
+            categoryId: 1453245,
+          })
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .expectStatus(400);
+      });
+    });
+    describe('Get products by category', () => {
+      it('should get products by category', () => {
+        return pactum
+          .spec()
+          .get('/categories/{id}/products')
+          .withPathParams('id', '$S{createdCategoryId}')
+          .expectStatus(200)
+          .inspect();
+      });
+    });
+    describe('Get all categories', () => {
+      it('should get all categories', () => {
+        return pactum
+          .spec()
+          .get('/categories')
+          .expectStatus(200)
+          .expectJsonLength(1);
+      });
     });
   });
 

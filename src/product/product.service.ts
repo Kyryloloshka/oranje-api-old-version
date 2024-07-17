@@ -1,14 +1,11 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { Product } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProductDto } from './dto';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { EditProductDto } from './dto/edit-product.dto';
 
 @Injectable()
@@ -19,39 +16,41 @@ export class ProductService {
     const createdProduct = await this.prisma.product.create({
       data: dto,
     });
+    if (dto.categoryId) {
+      const category = await this.prisma.category.findUnique({
+        where: { id: dto.categoryId },
+      });
+      if (!category) {
+        throw new BadRequestException('Category with this id does not exist');
+      }
+    }
     return createdProduct;
   }
 
   async editProduct(id: number, dto: EditProductDto): Promise<Product> {
-    try {
-      const editedProduct = await this.prisma.product.update({
-        where: { id },
-        data: { ...dto },
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+    });
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+    if (dto.categoryId) {
+      const category = await this.prisma.category.findUnique({
+        where: { id: dto.categoryId },
       });
-      if (!editedProduct) {
-        throw new NotFoundException('Product not found');
-      }
-      return editedProduct;
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new BadRequestException('Invalid data provided');
-        } else if (error.code === 'P2002') {
-          throw new ForbiddenException('User with this id does not exist');
-        } else {
-          throw new UnauthorizedException(
-            'User is not authenticated or token is invalid',
-          );
-        }
-      } else {
-        throw new UnauthorizedException(
-          'User is not authenticated or token is invalid',
-        );
+      if (!category) {
+        throw new BadRequestException('Category with this id does not exist');
       }
     }
+    return await this.prisma.product.update({
+      where: { id },
+      data: {
+        ...dto,
+      },
+    });
   }
 
-  async deleteProduct(id: number): Promise<void> {
+  async deleteProduct(id: number) {
     await this.prisma.product.delete({
       where: { id },
     });
