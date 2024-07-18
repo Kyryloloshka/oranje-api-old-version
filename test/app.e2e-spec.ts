@@ -6,6 +6,7 @@ import * as pactum from 'pactum';
 import { AuthDto } from 'src/auth/dto';
 import { EditUserDto } from 'src/user/dto';
 import { CreateCategoryDto } from 'src/category/dto';
+import { CreateTagDto } from 'src/tag/dto';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -558,8 +559,20 @@ describe('App e2e', () => {
   });
 
   describe('Tag', () => {
+    const createTagDto: CreateTagDto = {
+      name: 'name tag 1',
+    };
     describe('Create tag', () => {
-      it.todo('should create a tag');
+      it('should create a tag', () => {
+        return pactum
+          .spec()
+          .post('/tags')
+          .withBody(createTagDto)
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .expectStatus(201);
+      });
       it.todo('should throw 400 if invalid data is provided');
       it.todo(
         'should throw 403 if user is not an admin or does not have the required permissions',
@@ -711,8 +724,23 @@ describe('App e2e', () => {
   });
 
   describe('Reviews and Ratings', () => {
+    // const createReviewDto: CreateReviewDto = {
+    //   productId: 3,
+    //   rating: 4,
+    //   comment: 'hello',
+    // };
     describe('Add a review', () => {
-      it.todo('should add a review');
+      it.todo(
+        'should add a review',
+        // return pactum
+        //   .spec()
+        //   .post('/reviews')
+        //   .withBody(createReviewDto)
+        //   .withHeaders({
+        //     Authorization: `Bearer $S{userAt}`,
+        //   })
+        //   .expectStatus(201);
+      );
       it.todo('should throw 400 if review data is invalid');
       it.todo(
         'should throw 403 if the user is not authenticated or the token is invalid',

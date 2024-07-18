@@ -44,11 +44,11 @@ model Product {
   reviews     Review[]
   sku         String?
   barcode     String?
-  tags        String[]
   thumbnail   String
   images      String[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+	tags        Tag[]
   @@map("products")
 }
 
@@ -72,4 +72,13 @@ model Review {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@map("reviews")
+}
+
+model Tag {
+	id Int @id @default(autoincrement())
+	products Product[]
+	name     String
+	createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("tags")
 }
