@@ -571,41 +571,115 @@ describe('App e2e', () => {
           .withHeaders({
             Authorization: `Bearer $S{userAt}`,
           })
-          .expectStatus(201);
+          .expectStatus(201)
+          .stores('tagId', 'id');
       });
-      it.todo('should throw 400 if invalid data is provided');
+      it('should throw 400 if invalid data is provided', () => {
+        return pactum
+          .spec()
+          .post('/tags')
+          .withBody({
+            name: 354,
+          })
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .expectStatus(400);
+      });
       it.todo(
         'should throw 403 if user is not an admin or does not have the required permissions',
       );
-      it.todo(
-        'should throw 403 if the user is not authenticated or the token is invalid',
-      );
+      it('should throw 401 if the user is not authenticated or the token is invalid', () => {
+        return pactum
+          .spec()
+          .post('/tags')
+          .withBody(createTagDto)
+          .expectStatus(401);
+      });
     });
 
     describe('Edit tag', () => {
-      it.todo('should edit a tag');
-      it.todo('should throw 400 if invalid data is provided');
+      it('should edit a tag', () => {
+        return pactum
+          .spec()
+          .patch('/tags/{id}')
+          .withPathParams('id', '$S{tagId}')
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .withBody({
+            name: 'edited tag',
+          })
+          .expectStatus(200)
+          .expectBodyContains('edited tag');
+      });
+      it('should throw 400 if invalid data is provided', () => {
+        return pactum
+          .spec()
+          .patch('/tags/{id}')
+          .withPathParams('id', '$S{tagId}')
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .withBody({
+            name: 354,
+          })
+          .expectStatus(400);
+      });
       it.todo(
         'should throw 403 if user is not an admin or does not have the required permissions',
       );
-      it.todo(
-        'should throw 403 if the user is not authenticated or the token is invalid',
-      );
+      it('should throw 401 if the user is not authenticated or the token is invalid', () => {
+        return pactum
+          .spec()
+          .patch('/tags/{id}')
+          .withPathParams('id', '$S{tagId}')
+          .withBody({
+            name: 'edited tag',
+          })
+          .expectStatus(401);
+      });
     });
 
     describe('Delete tag', () => {
-      it.todo('should delete a tag');
+      it('should delete a tag', () => {
+        return pactum
+          .spec()
+          .delete('/tags/{id}')
+          .withPathParams('id', '$S{tagId}')
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .expectStatus(204);
+      });
       it.todo(
         'should throw 403 if user is not an admin or does not have the required permissions',
       );
-      it.todo(
-        'should throw 403 if the user is not authenticated or the token is invalid',
-      );
+      it('should throw 401 if the user is not authenticated or the token is invalid', () => {
+        return pactum
+          .spec()
+          .delete('/tags/{id}')
+          .withPathParams('id', '$S{tagId}')
+          .expectStatus(401);
+      });
     });
 
-    describe('Get tag', () => {
-      it.todo('should get a tag');
-      it.todo('should throw 404 if tag is not found');
+    describe('Get tag by id', () => {
+      it('should get a tag by id', () => {
+        return pactum
+          .spec()
+          .get('/tags/{id}')
+          .withPathParams('id', '$S{tagId}')
+          .expectStatus(200)
+          .expectBodyContains('edited tag');
+      });
+      it('should throw 404 if tag is not found', () => {
+        return pactum
+          .spec()
+          .get('/tags/{id}')
+          .withPathParams('id', 134543)
+          .expectStatus(404);
+      });
     });
   });
 
