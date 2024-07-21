@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsString,
   IsArray,
+  IsInt,
 } from 'class-validator';
 
 export class CreateProductDto {
@@ -20,11 +21,11 @@ export class CreateProductDto {
   price: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   stock?: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   categoryId?: number;
 
   @IsOptional()
@@ -49,7 +50,8 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsArray()
-  tags?: string[];
+  @IsInt({ each: true })
+  tagIds?: number[];
 
   @IsNotEmpty()
   @IsString()

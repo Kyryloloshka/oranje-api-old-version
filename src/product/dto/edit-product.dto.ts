@@ -48,12 +48,13 @@ export class EditProductDto {
   material?: string;
 
   @IsOptional()
-  @IsArray()
-  tags?: string[];
-
-  @IsOptional()
   @IsString()
   thumbnail?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  tagIds?: number[];
 
   @IsOptional()
   @IsArray()

@@ -13,9 +13,6 @@ export class ProductService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createProduct(dto: CreateProductDto) {
-    const createdProduct = await this.prisma.product.create({
-      data: dto,
-    });
     if (dto.categoryId) {
       const category = await this.prisma.category.findUnique({
         where: { id: dto.categoryId },
@@ -24,6 +21,19 @@ export class ProductService {
         throw new BadRequestException('Category with this id does not exist');
       }
     }
+    if (dto.tagIds && dto.tagIds.length > 0) {
+      const tags = await this.prisma.tag.findMany({
+        where: { id: { in: dto.tagIds } },
+      });
+      if (tags.length !== dto.tagIds.length) {
+        throw new BadRequestException('Some tags do not exist');
+      }
+    }
+    const createdProduct = await this.prisma.product.create({
+      data: {
+        ...dto,
+      },
+    });
     return createdProduct;
   }
 
@@ -67,6 +77,6 @@ export class ProductService {
   }
 
   getAllProducts() {
-    return this.prisma.product.findMany();
+    return this.prisma.product.findMany({});
   }
 }

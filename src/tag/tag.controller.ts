@@ -3,7 +3,10 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   UseGuards,
@@ -12,7 +15,7 @@ import { TagService } from './tag.service';
 import { CreateTagDto, UpdateTagDto } from './dto';
 import { JwtGuard } from 'src/auth/guard';
 
-@Controller('tag')
+@Controller('tags')
 export class TagController {
   constructor(private readonly tagService: TagService) {}
   @Get()
@@ -21,7 +24,7 @@ export class TagController {
   }
 
   @Get(':id')
-  async getById(@Param('id') id) {
+  async getById(@Param('id', ParseIntPipe) id: number) {
     return await this.tagService.getById(id);
   }
 
@@ -33,13 +36,14 @@ export class TagController {
 
   @UseGuards(JwtGuard)
   @Patch(':id')
-  async edit(@Param('id') id, @Body() dto: UpdateTagDto) {
+  async edit(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateTagDto) {
     return await this.tagService.edit(id, dto);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtGuard)
   @Delete(':id')
-  async delete(@Param('id') id) {
+  async delete(@Param('id', ParseIntPipe) id: number) {
     return await this.tagService.delete(id);
   }
 }

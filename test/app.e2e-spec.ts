@@ -233,7 +233,6 @@ describe('App e2e', () => {
         dimensions: '34x34x34',
         color: 'red',
         material: 'plastic',
-        tags: ['tag1', 'tag2'],
         thumbnail: 'image/url2',
         images: ['image/url3', 'image/url4'],
       };
@@ -256,7 +255,6 @@ describe('App e2e', () => {
           .expectBodyContains(editProductDto.dimensions)
           .expectBodyContains(editProductDto.color)
           .expectBodyContains(editProductDto.material)
-          .expectBodyContains(editProductDto.tags)
           .expectBodyContains(editProductDto.thumbnail)
           .expectBodyContains(editProductDto.images);
       });
@@ -641,6 +639,24 @@ describe('App e2e', () => {
       });
     });
 
+    describe('Get tag by id', () => {
+      it('should get a tag by id', () => {
+        return pactum
+          .spec()
+          .get('/tags/{id}')
+          .withPathParams('id', '$S{tagId}')
+          .expectStatus(200)
+          .expectBodyContains('edited tag');
+      });
+      it('should throw 404 if tag is not found', () => {
+        return pactum
+          .spec()
+          .get('/tags/{id}')
+          .withPathParams('id', 134543)
+          .expectStatus(404);
+      });
+    });
+
     describe('Delete tag', () => {
       it('should delete a tag', () => {
         return pactum
@@ -661,24 +677,6 @@ describe('App e2e', () => {
           .delete('/tags/{id}')
           .withPathParams('id', '$S{tagId}')
           .expectStatus(401);
-      });
-    });
-
-    describe('Get tag by id', () => {
-      it('should get a tag by id', () => {
-        return pactum
-          .spec()
-          .get('/tags/{id}')
-          .withPathParams('id', '$S{tagId}')
-          .expectStatus(200)
-          .expectBodyContains('edited tag');
-      });
-      it('should throw 404 if tag is not found', () => {
-        return pactum
-          .spec()
-          .get('/tags/{id}')
-          .withPathParams('id', 134543)
-          .expectStatus(404);
       });
     });
   });

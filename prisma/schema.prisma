@@ -50,7 +50,7 @@ model Product {
   images      String[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-	tags        Tag[]
+	tags        TagProduct[]
   cartItems   CartItem[]
   orderItems  OrderItem[]
   @@map("products")
@@ -80,11 +80,20 @@ model Review {
 
 model Tag {
 	id Int @id @default(autoincrement())
-	products Product[]
+	products TagProduct[]
 	name     String
 	createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@map("tags")
+}
+
+model TagProduct {
+  tagId     Int
+  tag       Tag      @relation(fields: [tagId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  @@id([tagId, productId])
+  @@map("tag-products")
 }
 
 model Cart {
