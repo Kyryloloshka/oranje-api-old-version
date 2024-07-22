@@ -33,16 +33,13 @@ export class TagService {
 
   async create(dto: CreateTagDto) {
     try {
-      console.log('Creating tag with data:', dto);
       const createdTag = await this.prisma.tag.create({
         data: {
           ...dto,
         },
       });
-      console.log('Tag created successfully:', createdTag);
       return createdTag;
     } catch (error) {
-      console.error('Error creating tag:', error);
       throw new InternalServerErrorException('Error creating tag');
     }
   }
